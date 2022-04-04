@@ -56,7 +56,7 @@ const urlShorten = async function(req, res) {
 }
 
 // --------------get Url By urlCode-----------------------------------------------------------------------------------
-const getUrl = async function(req, res) {
+const redirectUrl = async function(req, res) {
     try{
         let url = await urlModel.findOne({urlCode: req.params.urlCode})      //finding the urlCode in urlModel
 
@@ -74,4 +74,4 @@ const getUrl = async function(req, res) {
 }
 
 module.exports.urlShorten = urlShorten;
-module.exports.getUrl = getUrl;
+module.exports.redirectUrl = redirectUrl;

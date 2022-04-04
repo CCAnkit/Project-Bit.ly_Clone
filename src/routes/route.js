@@ -2,11 +2,10 @@ const express = require('express');
 const router = express.Router();
 const urlController = require("../controllers/urlController.js");
 
+// API's
+router.post(`/url/shorten`, urlController.urlShorten);    //CreateShortUrl
 
-router.post(`/url/shorten`, urlController.urlShorten);
-router.get(`/:urlCode`,  urlController.getUrl);
+router.get(`/:urlCode`,  urlController.redirectUrl);      //RedirectUrl
 
-// router.get(``, );
-// router.get(``, );
 
 module.exports = router;
