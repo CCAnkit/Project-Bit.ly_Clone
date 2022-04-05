@@ -17,12 +17,12 @@ const urlShorten = async function(req, res) {
             return res.status(401).send({status: false, msg: `Invalid request parameters. Please provide Url details`})
         }
        
-        if (!validUrl.isWebUri(baseUrl)) {     // check the valid format of longUrl by using the validUrl.isWebUri method
+        if (!validUrl.isWebUri(baseUrl)) {     // check the valid format of baseUrl by using the validUrl.isWebUri method
             return res.status(401).send({status: false, msg: 'Base URL is in Invalid format'})
         }
         const { longUrl } = url         // destructure the longUrl from req.body.longUrl
 
-        let newUrl = {}       //blank Object for the newUrl
+        let newUrl = {}       //blank Object 
 
         if (!(validator.isValidValue(longUrl))){
             return res.status(400).send({ status: false, msg: "Please provide the longUrl" })   //longUrl is mandory 
@@ -30,12 +30,18 @@ const urlShorten = async function(req, res) {
         if (!validUrl.isWebUri(longUrl)) {     // check the valid format of longUrl by using the validUrl.isWebUri method
             return res.status(401).send({status: false, msg: 'Long URL is in Invalid format'})
         }
-        const urlCode = shortId.generate().toLowerCase()       // if valid, we create the url code
         
-        let isUrlCodeUsed = await urlModel.findOne({urlCode}); //finding the urlCode in the urlModel
+        let isLongUrlExist = await urlModel.findOne({longUrl}); //finding the longUrl in the urlModel
+        
+        if (isLongUrlExist) {     //if exist sends the shortUrl/urlCode 
+            return res.status(200).send({status: false, msg: 'Short URL is already Exist', data: { longUrl: isLongUrlExist.longUrl, urlCode : isLongUrlExist.urlCode, shortUrl : isLongUrlExist.shortUrl} })
+        }
+        const urlCode = shortId.generate().toLowerCase()       // if valid, we create the url code
 
-        if (isUrlCodeUsed) {
-            return res.status(401).send({ status: false, msg: "URL code is already exits" });
+        const isUrlCodeExist = await urlModel.findOne({urlCode}); //finding the urlCode in the urlModel
+
+        if (isUrlCodeExist) {
+            return res.status(401).send({ status: false, msg: "URL code is already exits, Create another UrlCode" });
         }
 
         const shortUrl = baseUrl + '/' + urlCode        // join the generated short code with the base url
@@ -53,11 +59,11 @@ const urlShorten = async function(req, res) {
     }
 }
 
-// --------------Redirected the Url-----------------------------------------------------------------------------------
+// --------------Redirected the LongUrl-----------------------------------------------------------------------------------
 const redirectUrl = async function(req, res) {
     try{
-        let url = await urlModel.findOne({urlCode: req.params.urlCode})      //finding the urlCode in urlModel
-
+        const urlCode = req.params.urlCode
+        const url = await urlModel.findOne({urlCode: urlCode})      //finding the urlCode in urlModel
         if (url) {     
             return res.status(301).redirect(url.longUrl)     // if url is valid we perform a redirect
 
